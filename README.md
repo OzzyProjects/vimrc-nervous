@@ -2,4 +2,4 @@
 
 Just an overpowered vimrc file with ALE, Syntastic, NERD etc... and many usefull keybinds
 
-geared towards Python 3 and C++
+oriented Python 3 and C++ (Perl perhaps too)

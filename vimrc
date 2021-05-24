@@ -196,18 +196,133 @@ call deoplete#custom#var('tabnine', {
 \ 'max_num_results': 20,
 \ })
 
-" [Buffers] Jump to the existing window if possible
 let g:fzf_buffers_jump = 1
-
-" [[B]Commits] Customize the options used by 'git log':
 let g:fzf_commits_log_options = '--graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr"'
-
-" [Tags] Command to generate tags file
 let g:fzf_tags_command = 'ctags -R'
-
-" [Commands] --expect expression for directly executing the command
 let g:fzf_commands_expect = 'alt-enter,ctrl-x'
 
 " Path completion with custom source command
 inoremap <expr> <c-x><c-f> fzf#vim#complete#path('fd')
 inoremap <expr> <c-x><c-f> fzf#vim#complete#path('rg --files')
+
+" Language:		GNU Assembler
+
+if exists("b:current_syntax")
+  finish
+endif
+
+let s:cpo_save = &cpo
+set cpo&vim
+
+syn case ignore
+
+" storage types
+syn match asmType "\.long"
+syn match asmType "\.ascii"
+syn match asmType "\.asciz"
+syn match asmType "\.byte"
+syn match asmType "\.double"
+syn match asmType "\.float"
+syn match asmType "\.hword"
+syn match asmType "\.int"
+syn match asmType "\.octa"
+syn match asmType "\.quad"
+syn match asmType "\.short"
+syn match asmType "\.single"
+syn match asmType "\.space"
+syn match asmType "\.string"
+syn match asmType "\.word"
+
+syn match asmIdentifier		"[a-z_][a-z0-9_]*"
+syn match asmLabel		"[a-z_][a-z0-9_]*:"he=e-1
+
+syn match asmDecimal		"\<0\+[1-7]\=\>"	 display
+syn match asmDecimal		"\<[1-9]\d*\>"		 display
+syn match asmOctal		"\<0[0-7][0-7]\+\>"	 display
+syn match asmHexadecimal	"\<0[xX][0-9a-fA-F]\+\>" display
+syn match asmBinary		"\<0[bB][0-1]\+\>"	 display
+
+syn match asmFloat		"\<\d\+\.\d*\%(e[+-]\=\d\+\)\=\>" display
+syn match asmFloat		"\.\d\+\%(e[+-]\=\d\+\)\=\>"	  display
+syn match asmFloat		"\<\d\%(e[+-]\=\d\+\)\>"	  display
+syn match asmFloat		"[+-]\=Inf\>\|\<NaN\>"		  display
+
+syn match asmFloat		"\%(0[edfghprs]\)[+-]\=\d*\%(\.\d\+\)\%(e[+-]\=\d\+\)\="    display
+syn match asmFloat		"\%(0[edfghprs]\)[+-]\=\d\+\%(\.\d\+\)\=\%(e[+-]\=\d\+\)\=" display
+" Avoid fighting the hexadecimal match for unicorn-like '0x' prefixed floats
+syn match asmFloat		"\%(0x\)[+-]\=\d*\%(\.\d\+\)\%(e[+-]\=\d\+\)\="		    display
+
+syn match asmCharacterEscape	"\\."    contained
+syn match asmCharacter		"'\\\=." contains=asmCharacterEscape
+
+syn match asmStringEscape	"\\\_."			contained
+syn match asmStringEscape	"\\\%(\o\{3}\|00[89]\)"	contained display
+syn match asmStringEscape	"\\x\x\+"		contained display
+
+syn region asmString		start="\"" end="\"" skip="\\\\\|\\\"" contains=asmStringEscape
+
+syn keyword asmTodo		contained TODO FIXME XXX NOTE
+
+syn region asmComment		start="/\*" end="\*/" contains=asmTodo,@Spell
+
+syn region asmComment		start="//" end="$" keepend contains=asmTodo,@Spell
+
+syn match asmComment		"[#;!|].*" contains=asmTodo,@Spell
+
+"syn match asmComment		"@.*" contains=asmTodo
+"syn match asmComment		"^#.*" contains=asmTodo
+
+" comment highlighting or use a specific, more comprehensive syntax file.
+
+syn match asmInclude		"\.include"
+syn match asmCond		"\.if"
+syn match asmCond		"\.else"
+syn match asmCond		"\.endif"
+syn match asmMacro		"\.macro"
+syn match asmMacro		"\.endm"
+
+syn match asmDirective
+
+syn case match
+
+" The default methods for highlighting.  Can be overridden later
+hi def link asmSection		Special
+hi def link asmLabel		Label
+hi def link asmComment		Comment
+hi def link asmTodo		Todo
+hi def link asmDirective	Statement
+
+hi def link asmInclude		Include
+hi def link asmCond		PreCondit
+hi def link asmMacro		Macro
+
+if exists('g:asm_legacy_syntax_groups')
+  hi def link hexNumber		Number
+  hi def link decNumber		Number
+  hi def link octNumber		Number
+  hi def link binNumber		Number
+  hi def link asmHexadecimal	hexNumber
+  hi def link asmDecimal	decNumber
+  hi def link asmOctal		octNumber
+  hi def link asmBinary		binNumber
+else
+  hi def link asmHexadecimal	Number
+  hi def link asmDecimal	Number
+  hi def link asmOctal		Number
+  hi def link asmBinary		Number
+endif
+hi def link asmFloat		Float
+
+hi def link asmString		String
+hi def link asmStringEscape	Special
+hi def link asmCharacter	Character
+hi def link asmCharacterEscape	Special
+
+hi def link asmIdentifier	Identifier
+hi def link asmType		Type
+
+let b:current_syntax = "asm"
+
+unlet s:cpo_save
+
+" vim: nowrap sw=2 sts=2 ts=8 noet
